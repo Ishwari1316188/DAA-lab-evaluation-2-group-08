@@ -63,7 +63,7 @@ self.user_steps = 0
 self.ai_steps = 0
 self.update_boards()
 
-# ---------- DP MACHINE ----------
+# DP MACHINE
 
 def solve_ai(self):
 self.ai_steps = 0
