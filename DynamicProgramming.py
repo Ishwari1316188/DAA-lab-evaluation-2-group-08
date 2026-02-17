@@ -73,3 +73,52 @@ class PuzzleApp:
                 self.round_active = False
                 self.status_lbl.config(text="Status: User solved. Click AI Solve for result.")
                 messagebox.showinfo("User Solved", f"You solved it in {self.user_steps} moves.")
+
+    def shuffle(self):
+        state = deepcopy(self.goal_grid)
+
+        for _ in range(150):
+            zr, zc = self.find_zero(state)
+            dr, dc = random.choice(DIRS)
+            nr, nc = zr + dr, zc + dc
+            if 0 <= nr < 3 and 0 <= nc < 3:
+                state[zr][zc], state[nr][nc] = state[nr][nc], 0
+
+        self.user_state = deepcopy(state)
+        self.ai_state = deepcopy(state)
+
+        self.user_steps = 0
+        self.ai_steps = 0
+
+        self.user_finished = False
+        self.ai_finished = False
+        self.ai_solving = False
+        self.round_active = True
+
+        self.status_lbl.config(text="Status: Round active")
+        self.update_boards()
+
+    def solve(self):
+        if not self.round_active and not self.user_finished:
+            messagebox.showinfo("Ai Solve", "Press Shuffle to start a round first.")
+            return
+
+        if self.ai_solving or self.ai_finished:
+            return
+
+        self.ai_solving = True
+        self.round_active = False
+        self.status_lbl.config(text="Status: AI solving...")
+        self.update_boards()
+
+        start = tuple(x for row in self.ai_state for x in row)
+        path = reconstruct_path(start)
+
+        if not path:
+            self.ai_solving = False
+            self.status_lbl.config(text="Status: No solution from current state")
+            messagebox.showinfo("AI Solver", "No solution exists!")
+            return
+
+        self.animate(path, 0)
+
